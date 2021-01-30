@@ -5,7 +5,7 @@ Route TCP socket connections from one server to another.
 - Python 3 (tested on 3.8)
 
 # Usage
-Create a JSON configuration file in your project directory. Here's a sample config file showing:
+Create a JSON configuration file in your project directory. Here's a sample config file:
 ```hjson
 {
     "buffer_size": 8192, // Send and recieve buffer size in bytes (optional, default is 4096)
