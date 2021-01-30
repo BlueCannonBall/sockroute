@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import socket, threading, json, argparse
+import socket, threading, json, argparse, sys
 
 def listen_on_s(ss, s):
     global BUFFER_SIZE
@@ -42,7 +42,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as ss:
     ss.listen()
     print("======> [INFO] Server started")
     while True:
-        conn, addr = ss.accept()
+        try:
+            conn, addr = ss.accept()
+        except KeyboardInterrupt:
+            print("======> [INFO] Recieved interrupt, exiting")
+            sys.exit(1)
         print("======> [INFO] New connection")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((CLIENT_HOST, CLIENT_PORT))
