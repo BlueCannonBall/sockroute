@@ -42,11 +42,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as ss:
     ss.listen()
     print("======> [INFO] Server started")
     while True:
-        try:
-            conn, addr = ss.accept()
-        except KeyboardInterrupt:
-            print("======> [INFO] Recieved interrupt, exiting")
-            sys.exit(1)
+        conn, addr = ss.accept()
         print("======> [INFO] New connection")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((CLIENT_HOST, CLIENT_PORT))
