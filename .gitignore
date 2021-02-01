@@ -139,3 +139,4 @@ cython_debug/
 
 # Custom
 config.json
+packet_log.log
