@@ -41,7 +41,7 @@ if "packet_logging" in config_json:
 if "buffer_size" in config_json:
     BUFFER_SIZE = config_json["buffer_size"]
 else:
-    BUFFER_SIZE = 4096
+    BUFFER_SIZE = 64000
 print("======> [INFO] Config loaded")
 
 config_file.close()
