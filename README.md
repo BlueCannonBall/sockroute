@@ -9,6 +9,10 @@ Create a JSON configuration file in your project directory. Here's a sample conf
 ```hjson
 {
     "buffer_size": 8192, // Send and recieve buffer size in bytes (optional, default is 4096)
+    "packet_logging": {
+        "log_packets": true, // Enable packet logging
+        "log_location": "packet_log.log" // Log packets to a file called packet_log.log in the current directory
+    },
     "server": {
         "host": "0.0.0.0", // Hosts server on 0.0.0.0 (required)
         "port": 8080 // Hosts server on port 8080 (required)

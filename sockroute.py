@@ -8,6 +8,9 @@ def listen_on_s(ss, s):
         data = s.recv(BUFFER_SIZE)
         if not data:
             break
+        if LOG_PACKETS:
+            with open(PACKET_LOG_LOCATION, 'a') as packet_log_file:
+                packet_log_file.write(f"[PACKET] server -> client: {list(data)}\n")
         ss.sendall(data)
 
 def listen_on_ss(ss, s):
@@ -16,6 +19,9 @@ def listen_on_ss(ss, s):
         data = ss.recv(BUFFER_SIZE)   
         if not data:
             break
+        if LOG_PACKETS:
+            with open(PACKET_LOG_LOCATION, 'a') as packet_log_file:
+                packet_log_file.write(f"[PACKET] client -> server: {list(data)}\n")
         s.sendall(data)
 
 parser = argparse.ArgumentParser()
@@ -29,6 +35,9 @@ SERVER_HOST = config_json["server"]["host"]
 SERVER_PORT = config_json["server"]["port"]
 CLIENT_HOST = config_json["client"]["host"]
 CLIENT_PORT = config_json["client"]["port"]
+if "packet_logging" in config_json:
+    LOG_PACKETS = config_json["packet_logging"]["log_packets"]
+    PACKET_LOG_LOCATION = config_json["packet_logging"]["log_location"]
 if "buffer_size" in config_json:
     BUFFER_SIZE = config_json["buffer_size"]
 else:
