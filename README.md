@@ -1,10 +1,10 @@
 # Sockroute
 Route TCP socket connections from one server to another.
 
-# Dependencies
+## Dependencies
 - Python 3 (tested on 3.8)
 
-# Usage
+## Usage
 Create a JSON configuration file in your project directory. Here's a sample config file:
 ```hjson
 {
