@@ -35,6 +35,7 @@ SERVER_HOST = config_json["server"]["host"]
 SERVER_PORT = config_json["server"]["port"]
 CLIENT_HOST = config_json["client"]["host"]
 CLIENT_PORT = config_json["client"]["port"]
+LOG_PACKETS = None
 if "packet_logging" in config_json:
     LOG_PACKETS = config_json["packet_logging"]["log_packets"]
     PACKET_LOG_LOCATION = config_json["packet_logging"]["log_location"]
