@@ -10,7 +10,6 @@
 #include <netinet/in.h>
 #include <stdexcept>
 #include <string>
-#include <sys/types.h>
 #include <thread>
 #include <unistd.h>
 
@@ -36,6 +35,9 @@ inline bool in_vec(const T1& vec, const T2& object) {
 
 void parse_config() {
     std::ifstream config_file(config_location);
+    if (!config_file.is_open()) {
+        throw std::runtime_error(PARSE_ERROR_HEADER + std::string(strerror(errno)));
+    }
     config_file >> config;
 
     if (!config.is_object()) {
@@ -97,15 +99,22 @@ void parse_config() {
 void route(int inbound_client, int outbound_client) {
     for (;;) {
         char buffer;
-        if (read(outbound_client, &buffer, sizeof(buffer)) == 0) {
+        int read_result;
+        if ((read_result = read(outbound_client, &buffer, sizeof(buffer))) == 0) {
+            close(inbound_client);
+            close(outbound_client);
+            return;
+        } else if (read_result == -1) {
+            perror(ERROR_HEADER "write(2)");
             close(inbound_client);
             close(outbound_client);
             return;
         }
+
         if (write(inbound_client, &buffer, sizeof(buffer)) == -1) {
             perror(ERROR_HEADER "write(2)");
-            close(inbound_client);
             close(outbound_client);
+            close(inbound_client);
             return;
         }
     }
@@ -177,6 +186,7 @@ int main(int argc, char** argv) {
         parse_config();
     } catch (std::exception& e) {
         std::cerr << FATAL_ERROR_HEADER << e.what() << std::endl;
+        return 1;
     }
 
     int server_fd;

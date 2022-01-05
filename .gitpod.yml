@@ -1,0 +1,2 @@
+tasks:
+  - init: sudo apt install libboost-program-options-dev -y && make

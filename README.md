@@ -2,11 +2,11 @@
 Route TCP socket connections from one server to another.
 
 ## Prerequisites
-- A C++ Compiler
+- A C++ Compiler (tested with g++)
 - Boost.Program_options
 
 ## Usage
-Create a JSON configuration file in your project directory. Here's a sample config file:
+Create a JSON configuration file in your project directory. Here's a example config file:
 ```json
 {
     "//1": "The following two sections are required",
@@ -21,7 +21,7 @@ Create a JSON configuration file in your project directory. Here's a sample conf
     }
 }
 ```
-In the sample above, the socket router is set up to route all connections on port 8080 to 127.0.0.1:8000. Run Sockroute with `sockroute --config config.json`. If no configuration file is specified, Sockroute looks for a file called config.json in the current directory.
+In the example above, the socket router is set up to route all connections on port 8080 to 127.0.0.1:8000. Run sockroute with `sockroute --config config.json`. If no configuration file is specified, sockroute looks for a file called config.json in the current directory.
 
 ## Build & Install
 ```
