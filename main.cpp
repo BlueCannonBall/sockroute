@@ -60,17 +60,25 @@ void parse_config() {
         throw std::runtime_error(PARSE_ERROR_HEADER "`client` key is not an object");
     }
 
-    if (!config["server"]["host"].is_string()) {
+    if (!in_map(config["server"], "host")) {
+        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `server` key missing");
+    } else if (!config["server"]["host"].is_string()) {
         throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `server` key is not a string");
     }
-    if (!config["server"]["port"].is_number_unsigned()) {
+    if (!in_map(config["server"], "port")) {
+        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `server` key missing");
+    } else if (!config["server"]["port"].is_number_unsigned()) {
         throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `server` key is not an unsigned integer");
     }
 
-    if (!config["client"]["host"].is_string()) {
+    if (!in_map(config["client"], "host")) {
+        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `client` key missing");
+    } else if (!config["client"]["host"].is_string()) {
         throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `client` key is not a string");
     }
-    if (!config["client"]["port"].is_number_unsigned()) {
+    if (!in_map(config["client"], "port")) {
+        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `client` key missing");
+    } else if (!config["client"]["port"].is_number_unsigned()) {
         throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `client` key is not an unsigned integer");
     }
 
