@@ -3,16 +3,20 @@
 #include <boost/program_options.hpp>
 #include <cerrno>
 #include <csignal>
+#include <cstdio>
 #include <cstring>
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <unistd.h>
 
+#define BUFFER_SIZE        (sizeof(struct tcphdr) + sizeof(struct iphdr)) * 2
 #define FATAL_ERROR_HEADER "Fatal error: "
 #define ERROR_HEADER       "Error: "
 #define PARSE_ERROR_HEADER "Invalid config file: "
@@ -96,9 +100,24 @@ void parse_config() {
     config_file.close();
 }
 
+ssize_t writeall(int fd, const void* buf, size_t len) {
+    auto buf_pos = (const char*) buf;
+    ssize_t bytes_written;
+
+    while (len) {
+        bytes_written = write(fd, buf_pos, len);
+        if (bytes_written <= 0)
+            return bytes_written;
+        buf_pos += bytes_written;
+        len -= bytes_written;
+    }
+
+    return buf_pos - (const char*) buf;
+}
+
 void route(int inbound_client, int outbound_client) {
     for (;;) {
-        char buffer;
+        char buffer[BUFFER_SIZE];
         int read_result;
         if ((read_result = read(outbound_client, &buffer, sizeof(buffer))) == 0) {
             close(inbound_client);
@@ -111,7 +130,7 @@ void route(int inbound_client, int outbound_client) {
             return;
         }
 
-        if (write(inbound_client, &buffer, sizeof(buffer)) == -1) {
+        if (writeall(inbound_client, &buffer, sizeof(buffer)) == -1) {
             perror(ERROR_HEADER "write(2)");
             close(outbound_client);
             close(inbound_client);
