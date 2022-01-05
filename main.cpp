@@ -130,7 +130,7 @@ void route(int inbound_client, int outbound_client) {
             return;
         }
 
-        if (writeall(inbound_client, &buffer, sizeof(buffer)) == -1) {
+        if (writeall(inbound_client, &buffer, read_result) == -1) {
             perror(ERROR_HEADER "write(2)");
             close(outbound_client);
             close(inbound_client);
