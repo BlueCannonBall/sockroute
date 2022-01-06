@@ -16,7 +16,7 @@
 #include <thread>
 #include <unistd.h>
 
-#define BUFFER_SIZE        (sizeof(struct tcphdr) + sizeof(struct iphdr)) * 2
+#define BUFFER_SIZE        (sizeof(struct tcphdr) + sizeof(struct ip)) * 2
 #define FATAL_ERROR_HEADER "Fatal error: "
 #define ERROR_HEADER       "Error: "
 #define PARSE_ERROR_HEADER "Invalid config file: "
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
         perror(FATAL_ERROR_HEADER "socket(2)");
         return 1;
     }
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
         perror(FATAL_ERROR_HEADER "setsockopt(2)");
         return 1;
     }

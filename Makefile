@@ -1,6 +1,6 @@
 CXX = g++
 LIBS = -lboost_program_options
-CXXFLAGS = -Wall -s -O2 -flto -pthread -Bsymbolic -fno-semantic-interposition -fno-stack-protector
+CXXFLAGS = -Wall -std=c++11 -s -O2 -flto -pthread
 TARGET = sockroute
 PREFIX = /usr/local
 
