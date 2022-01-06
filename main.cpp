@@ -40,70 +40,70 @@ inline bool in_vec(const T1& vec, const T2& object) {
 void parse_config() {
     std::ifstream config_file(config_location);
     if (!config_file.is_open()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER + std::string(strerror(errno)));
+        throw std::runtime_error(std::string(strerror(errno)));
     }
     config_file >> config;
 
     if (!config.is_object()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "Not an object");
+        throw std::runtime_error("Not an object");
     }
 
     if (!in_map(config, "server")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`server` key missing");
+        throw std::runtime_error("`server` key missing");
     } else if (!config["server"].is_object()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`server` key is not an object");
+        throw std::runtime_error("`server` key is not an object");
     }
 
     if (!in_map(config, "client")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`client` key missing");
+        throw std::runtime_error("`client` key missing");
     } else if (!config["client"].is_object()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`client` key is not an object");
+        throw std::runtime_error("`client` key is not an object");
     }
 
     if (!in_map(config["server"], "host")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `server` key missing");
+        throw std::runtime_error("`host` key in `server` key missing");
     } else if (!config["server"]["host"].is_string()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `server` key is not a string");
+        throw std::runtime_error("`host` key in `server` key is not a string");
     }
     if (!in_map(config["server"], "port")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `server` key missing");
+        throw std::runtime_error("`port` key in `server` key missing");
     } else if (!config["server"]["port"].is_number_unsigned()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `server` key is not an unsigned integer");
+        throw std::runtime_error("`port` key in `server` key is not an unsigned integer");
     }
 
     if (!in_map(config["client"], "host")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `client` key missing");
+        throw std::runtime_error("`host` key in `client` key missing");
     } else if (!config["client"]["host"].is_string()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`host` key in `client` key is not a string");
+        throw std::runtime_error("`host` key in `client` key is not a string");
     }
     if (!in_map(config["client"], "port")) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `client` key missing");
+        throw std::runtime_error("`port` key in `client` key missing");
     } else if (!config["client"]["port"].is_number_unsigned()) {
-        throw std::runtime_error(PARSE_ERROR_HEADER "`port` key in `client` key is not an unsigned integer");
+        throw std::runtime_error("`port` key in `client` key is not an unsigned integer");
     }
 
-    if (in_map(config, "packet_logging")) {
-        if (in_map(config["packet_logging"], "enabled")) {
-            if (!config["packet_logging"]["enabled"].is_boolean()) {
-                throw std::runtime_error(PARSE_ERROR_HEADER "`enabled` key in `packet_logging` key is not a boolean value");
-            }
-        } else {
-            config["packet_logging"]["enabled"] = false;
-        }
+    // if (in_map(config, "packet_logging")) {
+    //     if (in_map(config["packet_logging"], "enabled")) {
+    //         if (!config["packet_logging"]["enabled"].is_boolean()) {
+    //             throw std::runtime_error("`enabled` key in `packet_logging` key is not a boolean value");
+    //         }
+    //     } else {
+    //         config["packet_logging"]["enabled"] = false;
+    //     }
 
-        if (in_map(config["packet_logging"], "log_location")) {
-            if (!config["packet_logging"]["log_location"].is_string()) {
-                throw std::runtime_error(PARSE_ERROR_HEADER "`log_location` key in `packet_logging` key is not a string");
-            }
-        } else {
-            config["packet_logging"]["log_location"] = "packets.log";
-        }
-    } else {
-        config["packet_logging"] = {
-            {"enabled", false},
-            {"log_location", "packets.log"},
-        };
-    }
+    //     if (in_map(config["packet_logging"], "log_location")) {
+    //         if (!config["packet_logging"]["log_location"].is_string()) {
+    //             throw std::runtime_error("`log_location` key in `packet_logging` key is not a string");
+    //         }
+    //     } else {
+    //         config["packet_logging"]["log_location"] = "packets.log";
+    //     }
+    // } else {
+    //     config["packet_logging"] = {
+    //         {"enabled", false},
+    //         {"log_location", "packets.log"},
+    //     };
+    // }
 
     config_file.close();
 }
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
     try {
         parse_config();
     } catch (std::exception& e) {
-        std::cerr << FATAL_ERROR_HEADER << e.what() << std::endl;
+        std::cerr << FATAL_ERROR_HEADER << PARSE_ERROR_HEADER << e.what() << std::endl;
         return 1;
     }
 
