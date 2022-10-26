@@ -82,45 +82,7 @@ void parse_config() {
         throw std::runtime_error("`port` key in `client` key is not an unsigned integer");
     }
 
-    // if (in_map(config, "packet_logging")) {
-    //     if (in_map(config["packet_logging"], "enabled")) {
-    //         if (!config["packet_logging"]["enabled"].is_boolean()) {
-    //             throw std::runtime_error("`enabled` key in `packet_logging` key is not a boolean value");
-    //         }
-    //     } else {
-    //         config["packet_logging"]["enabled"] = false;
-    //     }
-
-    //     if (in_map(config["packet_logging"], "log_location")) {
-    //         if (!config["packet_logging"]["log_location"].is_string()) {
-    //             throw std::runtime_error("`log_location` key in `packet_logging` key is not a string");
-    //         }
-    //     } else {
-    //         config["packet_logging"]["log_location"] = "packets.log";
-    //     }
-    // } else {
-    //     config["packet_logging"] = {
-    //         {"enabled", false},
-    //         {"log_location", "packets.log"},
-    //     };
-    // }
-
     config_file.close();
-}
-
-ssize_t writeall(int fd, const void* buf, size_t len) {
-    auto buf_pos = (const char*) buf;
-    ssize_t bytes_written;
-
-    while (len) {
-        bytes_written = write(fd, buf_pos, len);
-        if (bytes_written <= 0)
-            return bytes_written;
-        buf_pos += bytes_written;
-        len -= bytes_written;
-    }
-
-    return buf_pos - (const char*) buf;
 }
 
 void route(int inbound_client, int outbound_client) {
@@ -132,14 +94,14 @@ void route(int inbound_client, int outbound_client) {
             close(outbound_client);
             return;
         } else if (read_result == -1) {
-            perror(ERROR_HEADER "write(2)");
+            perror(ERROR_HEADER "write");
             close(inbound_client);
             close(outbound_client);
             return;
         }
 
-        if (writeall(inbound_client, &buffer, read_result) == -1) {
-            perror(ERROR_HEADER "write(2)");
+        if (write(inbound_client, &buffer, read_result) == -1) {
+            perror(ERROR_HEADER "write");
             close(outbound_client);
             close(inbound_client);
             return;
@@ -152,7 +114,7 @@ void handle_conn(int inbound_client) {
     struct sockaddr_in address;
 
     if ((outbound_client = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror(FATAL_ERROR_HEADER "socket(2)");
+        perror(FATAL_ERROR_HEADER "socket");
         exit(1);
     }
 
@@ -162,7 +124,7 @@ void handle_conn(int inbound_client) {
     {
         int result;
         if ((result = inet_pton(AF_INET, std::string(config["client"]["host"]).c_str(), &address.sin_addr)) == 0) {
-            std::cerr << PARSE_ERROR_HEADER << "Client host invalid\n";
+            std::cerr << PARSE_ERROR_HEADER << "Client host invalid" << std::endl;
             exit(1);
         } else if (result == -1) {
             std::cerr << PARSE_ERROR_HEADER << strerror(errno) << std::endl;
@@ -171,7 +133,7 @@ void handle_conn(int inbound_client) {
     }
 
     if (connect(outbound_client, (struct sockaddr*) &address, sizeof(address)) == -1) {
-        perror(FATAL_ERROR_HEADER "connect(2)");
+        perror(FATAL_ERROR_HEADER "connect");
         exit(1);
     }
 
@@ -216,17 +178,18 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    signal(SIGPIPE, SIG_IGN);
+
     int server_fd;
     int opt = 1;
     struct sockaddr_in address;
-    int addrlen = sizeof(address);
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror(FATAL_ERROR_HEADER "socket(2)");
+        perror(FATAL_ERROR_HEADER "socket");
         return 1;
     }
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
-        perror(FATAL_ERROR_HEADER "setsockopt(2)");
+        perror(FATAL_ERROR_HEADER "setsockopt");
         return 1;
     }
 
@@ -236,7 +199,7 @@ int main(int argc, char** argv) {
     {
         int result;
         if ((result = inet_pton(AF_INET, std::string(config["server"]["host"]).c_str(), &address.sin_addr)) == 0) {
-            std::cerr << PARSE_ERROR_HEADER << "Server host invalid\n";
+            std::cerr << PARSE_ERROR_HEADER << "Server host invalid" << std::endl;
             return 1;
         } else if (result == -1) {
             std::cerr << PARSE_ERROR_HEADER << strerror(errno) << std::endl;
@@ -245,22 +208,20 @@ int main(int argc, char** argv) {
     }
 
     if (bind(server_fd, (struct sockaddr*) &address, sizeof(address)) == -1) {
-        perror(FATAL_ERROR_HEADER "bind(2)");
+        perror(FATAL_ERROR_HEADER "bind");
         return 1;
     }
 
     if (listen(server_fd, 128) == -1) {
-        perror(FATAL_ERROR_HEADER "listen(2)");
+        perror(FATAL_ERROR_HEADER "listen");
     }
 
-    signal(SIGPIPE, [](int signum) {
-        std::cout << ERROR_HEADER "Broken pipe\n";
-    });
-
-    int inbound_client;
     for (;;) {
-        if ((inbound_client = accept(server_fd, (struct sockaddr*) &address, (socklen_t*) &addrlen)) == -1) {
-            perror(FATAL_ERROR_HEADER "accept(2)");
+        int inbound_client;
+        struct sockaddr inbound_address;
+        socklen_t inbound_addrlen = sizeof(inbound_address);
+        if ((inbound_client = accept(server_fd, (struct sockaddr*) &inbound_address, &inbound_addrlen)) == -1) {
+            perror(FATAL_ERROR_HEADER "accept");
             return 1;
         }
         handle_conn(inbound_client);
